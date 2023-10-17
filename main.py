@@ -28,7 +28,6 @@ def main():
 
         # Textual UI
         menu = inquirer.List('mode', message="Select Visualization Mode", choices=["Show PointCloud", "Create Mesh", "Exit Program", "Reload Program"])
-
         mode = inquirer.prompt([menu])["mode"]
 
         # Exit Program
@@ -88,8 +87,10 @@ def create_mesh(pcd):
     # https://tecsingularity.com/open3d/bpa/
 
     # estimate normals 法線推定
+    radius = float(inquirer.text(message="Input Radius", validate=lambda _, c: 0 < float(c), default=0.1))
+    max_nn = int(inquirer.text(message="Input Max NN", validate=lambda _, c: 0 < int(c), default=30))
     with console.status("[bold green]Estimate Normals ...") as status:
-        pcd.estimate_normals(search_param=o3d.geometry.KDTreeSearchParamHybrid(radius=0.1, max_nn=30))
+        pcd.estimate_normals(search_param=o3d.geometry.KDTreeSearchParamHybrid(radius=radius, max_nn=max_nn))
     console.log("[bold blue]Success:","Estimate Normals")
 
     # orient normals 点の方向性の一貫性の考慮
