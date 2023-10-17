@@ -111,11 +111,24 @@ def create_mesh(pcd):
 # --- DOWN SAMPLE --- #
 def downsample(pcd):
 
-    ds_voxel_size = float(inquirer.text(message="Input Voxel Size", validate=lambda _, c: 0 < float(c), default=0.1))
+    ds_mode_ui = inquirer.List('dsmode', message="Select DownSampling Mode", choices=["Voxel", "FPS", "Uniform"])
+    ds_mode = inquirer.prompt([ds_mode_ui])["dsmode"]
+
+    if ds_mode == "FPS":
+        ds_param = int(inquirer.text(message="Input num_samples", validate=lambda _, c: 0 < int(c), default=100))
+    elif ds_mode == "Uniform":
+        ds_param = int(inquirer.text(message="Input k points ", validate=lambda _, c: 0 < int(c), default=30))
+    elif ds_mode == "Voxel":
+        ds_param = float(inquirer.text(message="Input Voxel Size ", validate=lambda _, c: 0 < float(c), default=0.1))
 
     # downsample pointcloud
     with console.status("[bold green]Downsampling PointCloud ...") as status:
-        downpcd = pcd.voxel_down_sample(voxel_size=ds_voxel_size)
+        if ds_mode == "FPS":
+            downpcd = pcd.farthest_point_down_sample(num_samples=ds_param)
+        elif ds_mode == "Uniform":
+            downpcd = pcd.uniform_down_sample(every_k_points=ds_param)
+        elif ds_mode == "Voxel":
+            downpcd = pcd.voxel_down_sample(voxel_size=ds_param)
 
     # result table
     result = Table(title="Downsampling Result")
