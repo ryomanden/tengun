@@ -16,21 +16,29 @@ console = Console()
 
 
 
-# --- set parameters --- #
+# --- SET PARAMETERS --- #
 data_dir = os.getenv("DATA_DIR")
 
+# --- MAIN --- #
 def main():
     point = load_csv(int(inquirer.text(message="How many files do you want to import?", validate=lambda _, c: 1<= int(c), default=10)))
     pcd = create_pointcloud(point)
 
     while True:
+
+        # Textual UI
         menu = inquirer.List('mode', message="Select Visualization Mode", choices=["Show PointCloud", "Create Mesh", "Exit Program", "Reload Program"])
 
         mode = inquirer.prompt([menu])["mode"]
+
+        # Exit Program
         if mode == "Exit Program": sys.exit(0)
+
+        # Reload Program
         elif mode == "Reload Program": main()
         is_ds = inquirer.confirm("Downsample PointCloud?", default=True)
 
+        # Show PointCloud
         if mode == "Show PointCloud":
             if is_ds:
                 downpcd = downsample(pcd)
@@ -38,6 +46,7 @@ def main():
                 del downpcd
             else:
                 o3d.visualization.draw_geometries([pcd])
+        # Create Mesh
         elif mode == "Create Mesh":
             if is_ds:
                 downpcd = downsample(pcd)
@@ -48,6 +57,7 @@ def main():
             del downpcd, mesh
 
 
+# --- LOAD CSV --- #
 def load_csv(num):
     col_names = ["x", "y", "z", "r", "g", "b"]
     point = pd.DataFrame()
@@ -60,6 +70,7 @@ def load_csv(num):
     console.log("[bold blue]Success:","Import CSV")
     return point
 
+# --- CREATE POINTCLOUD --- #
 def create_pointcloud(point):
 
     # create pointcloud
@@ -70,7 +81,7 @@ def create_pointcloud(point):
     console.log("[bold blue]Success:","Create PointCloud")
     return pcd
 
-
+# --- CREATE MESH --- #
 def create_mesh(pcd):
 
     # コピペ元サイト
@@ -96,6 +107,7 @@ def create_mesh(pcd):
     console.log("[bold blue]Success:","Create Mesh")
     return mesh
 
+# --- DOWN SAMPLE --- #
 def downsample(pcd):
 
     ds_voxel_size = float(inquirer.text(message="Input Voxel Size", validate=lambda _, c: 0 < float(c), default=0.1))
