@@ -27,7 +27,7 @@ def main():
     while True:
 
         # Textual UI
-        menu = inquirer.List('mode', message="Select Visualization Mode", choices=["Show PointCloud", "Create Mesh", "Exit Program", "Reload Program"])
+        menu = inquirer.List('mode', message="Select Visualization Mode", choices=["Show PointCloud", "Create Mesh", "Create .xyz File", "Exit Program", "Reload Program"])
         mode = inquirer.prompt([menu])["mode"]
 
         # Exit Program
@@ -54,6 +54,9 @@ def main():
                 mesh = create_mesh(pcd)
             o3d.visualization.draw_geometries([mesh])
             del downpcd, mesh
+        # Create .xyz File
+        elif mode == "Create .xyz File":
+            create_xyz(pcd)
 
 
 # --- LOAD CSV --- #
@@ -108,6 +111,11 @@ def create_mesh(pcd):
     console.log("[bold blue]Success:","Create Mesh")
     return mesh
 
+# --- CREATE .xyz FILE --- #
+def create_xyz(pcd):
+    with console.status("[bold green]Create .xyz file ...") as status:
+        o3d.io.write_point_cloud("pointcloud.xyz", pcd)
+    console.log("[bold blue]Success:","Create .xyz File")
 # --- DOWN SAMPLE --- #
 def downsample(pcd):
 
